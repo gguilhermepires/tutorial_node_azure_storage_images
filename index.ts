@@ -13,6 +13,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // })
 
 app.post('/', uploadAzure.single('avatar'), (req, res) => {
+    // uma forma de fazer upload
     if (!req.file) {
         res.send('Erro ao fazer upload do arquivo!');
     } else {
@@ -20,11 +21,11 @@ app.post('/', uploadAzure.single('avatar'), (req, res) => {
     }
 });
 
-app.post('/arquivo', async (req, res) =>  {
-
+app.post('/arquivo', async (req, res) => {
+    //segunda forma de fazer upload
     let arquivo = 'uploads/7d1a6553-42c6-4563-acb0-43d472ebd742.jpg'
-  
-   
+
+
     const content = "Hello world!";
     const blobName = "newblob" + new Date().getTime();
 
@@ -36,7 +37,7 @@ app.post('/arquivo', async (req, res) =>  {
     const blockBlobClient = containerClient.getBlockBlobClient(arquivo);
     const uploadBlobResponse = await blockBlobClient.upload(content, content.length);
     console.log(`Upload block blob ${blobName} successfully`, uploadBlobResponse.requestId);
-    res.json(`Upload block blob ${blobName} successfully ${uploadBlobResponse.requestId}` );
+    res.json(`Upload block blob ${blobName} successfully ${uploadBlobResponse.requestId}`);
 });
 
 app.get('/arquivos', async (req, res) => {
@@ -100,7 +101,7 @@ app.delete('/arquivos/:nome', async (req, res) => {
     let downloaded = null;
     blobClient.deleteIfExists()
     try {
-        downloaded = await  blobClient.deleteIfExists();
+        downloaded = await blobClient.deleteIfExists();
         console.log("Downloaded blob content:", downloaded);
     } catch (e) {
         console.log("nao encontrou");
