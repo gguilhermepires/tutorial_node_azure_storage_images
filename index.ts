@@ -35,7 +35,7 @@ app.get('/arquivos', async (req, res) => {
         console.log("\t", blob.name);
         lista.push(blob);
     }
-  
+
 
     res.json(lista);
 });
@@ -52,14 +52,38 @@ app.get('/arquivos/:nome', async (req, res) => {
 
     let response = {};
     const blobClient = containerClient.getBlobClient(nome);
-    let  downloaded = null;
-    try{
+    let downloaded = null;
+    try {
         const downloadBlockBlobResponse = await blobClient.download();
-         downloaded = (
-          await streamToBuffer(downloadBlockBlobResponse.readableStreamBody)
+        downloaded = (
+            await streamToBuffer(downloadBlockBlobResponse.readableStreamBody)
         ).toString();
-    console.log("Downloaded blob content:", downloaded);
-    }catch(e){
+        console.log("Downloaded blob content:", downloaded);
+    } catch (e) {
+        console.log("nao encontrou");
+        console.log(e);
+    }
+    res.json(downloaded);
+});
+
+app.delete('/arquivos/:nome', async (req, res) => {
+    let { nome } = req.params;
+    const blobServiceClient = BlobServiceClient.fromConnectionString(
+        AZURE_STORAGE_CONNECTION_STRING
+    );
+    const containerName = 'photocoatstag';
+
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+    console.log("\nListing blobs...");
+
+    let response = {};
+    const blobClient = containerClient.getBlobClient(nome);
+    let downloaded = null;
+    blobClient.deleteIfExists()
+    try {
+        downloaded = await  blobClient.deleteIfExists();
+        console.log("Downloaded blob content:", downloaded);
+    } catch (e) {
         console.log("nao encontrou");
         console.log(e);
     }
@@ -68,16 +92,17 @@ app.get('/arquivos/:nome', async (req, res) => {
 
 async function streamToBuffer(readableStream) {
     return new Promise((resolve, reject) => {
-      const chunks = [];
-      readableStream.on("data", (data) => {
-        chunks.push(data instanceof Buffer ? data : Buffer.from(data));
-      });
-      readableStream.on("end", () => {
-        resolve(Buffer.concat(chunks));
-      });
-      readableStream.on("error", reject);
+        const chunks = [];
+        readableStream.on("data", (data) => {
+            chunks.push(data instanceof Buffer ? data : Buffer.from(data));
+        });
+        readableStream.on("end", () => {
+            resolve(Buffer.concat(chunks));
+        });
+        readableStream.on("error", reject);
     });
-  }
+}
+
 const port = 3002;
 app.listen(port, function () {
     console.log(`listening on port ${port}!`);
