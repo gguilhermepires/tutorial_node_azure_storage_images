@@ -20,6 +20,25 @@ app.post('/', uploadAzure.single('avatar'), (req, res) => {
     }
 });
 
+app.post('/arquivo', async (req, res) =>  {
+
+    let arquivo = 'uploads/7d1a6553-42c6-4563-acb0-43d472ebd742.jpg'
+  
+   
+    const content = "Hello world!";
+    const blobName = "newblob" + new Date().getTime();
+
+    const blobServiceClient = BlobServiceClient.fromConnectionString(
+        AZURE_STORAGE_CONNECTION_STRING
+    );
+    const containerName = 'photocoatstag';
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+    const blockBlobClient = containerClient.getBlockBlobClient(arquivo);
+    const uploadBlobResponse = await blockBlobClient.upload(content, content.length);
+    console.log(`Upload block blob ${blobName} successfully`, uploadBlobResponse.requestId);
+    res.json(`Upload block blob ${blobName} successfully ${uploadBlobResponse.requestId}` );
+});
+
 app.get('/arquivos', async (req, res) => {
     const blobServiceClient = BlobServiceClient.fromConnectionString(
         AZURE_STORAGE_CONNECTION_STRING
